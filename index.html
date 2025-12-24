@@ -61,32 +61,28 @@
             </div>
 
             <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">担当キャラクター</label>
-                <input type="text" id="customChar" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 熱血コーチ、冷静な分析官...">
-                
-                <span onclick="toggleSelect('charSelect')" class="helper-link">
-                    💡 分からない場合は参考例としてこちらをクリック(タップ)
-                </span>
-                
-                <select id="charSelect" onchange="applySelection('charSelect', 'customChar')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
-                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
-                </select>
+                <label class="block font-bold mb-2 text-gray-700">2. 担当キャラクターを選択</label>
+                <select id="charSelect" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none bg-white">
+                    </select>
+                <p class="text-xs text-gray-500 mt-1">※迷ったら「ランダム」ボタンを押してください</p>
             </div>
             
-            <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">聞きたいこと</label>
-                <input type="text" id="customQ" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 今後の見通しは？ リスクはある？">
-                
-                <span onclick="toggleSelect('qSelect')" class="helper-link">
-                    💡 分からない場合は参考例としてこちらをクリック(タップ)
-                </span>
-                
-                <select id="qSelect" onchange="applySelection('qSelect', 'customQ')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
-                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
-                </select>
+            <div id="tickerArea" class="mb-6 pt-4 border-t">
+                <label class="block font-bold mb-2 text-gray-700">3. 証券コード / 社名（任意）</label>
+                <div class="flex flex-col">
+                    <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
+                    
+                    <div id="yahooLinkContainer" class="yahoo-link-container">
+                        <a id="yahooLink" href="#" target="_blank" class="yahoo-link">
+                            <span class="yahoo-icon">🔍</span>
+                            <span>Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！</span>
+                        </a>
+                        <p class="warning-text">※存在しない銘柄だとAIが適当な回答をするので、確認必須！⇧クリックで確認</p>
+                    </div>
+                </div>
             </div>
 
-            <div id="extraOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
+            <div id="extraOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block font-bold mb-1 text-gray-600 text-sm">現在の状態</label>
                     <select id="statusSelect" class="w-full p-2 border rounded shadow-sm"></select>
@@ -97,25 +93,23 @@
                 </div>
             </div>
 
-            <div class="mb-6 border-t pt-4">
-                <div id="tickerArea">
-                    <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
-                    <div class="flex flex-col">
-                        <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
-                        
-                        <div id="yahooLinkContainer" class="yahoo-link-container">
-                            <a id="yahooLink" href="#" target="_blank" class="yahoo-link">
-                                <span class="yahoo-icon">🔍</span>
-                                <span>Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！</span>
-                            </a>
-                            <p class="warning-text">※存在しない銘柄だとAIが適当な回答をするので、確認必須！⇧クリックで確認</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・関心ごと</label>
-                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" 
+            <div class="mb-6 pt-4 border-t">
+                <label id="detailLabel" class="block font-bold mb-2 text-gray-700">5. ニュース・記事・関心ごと</label>
+                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 focus:border-red-400 outline-none" 
                 placeholder="ここに聞きたいことを入力、あるいはコピペ（記事内容を貼り付けなど）"></textarea>
+            </div>
+
+            <div class="mb-8">
+                <label class="block font-bold mb-2 text-gray-700">6. 具体的に聞きたいこと</label>
+                <input type="text" id="customQ" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 今後の見通しは？ リスクはある？">
+                
+                <span onclick="toggleSelect('qSelect')" class="helper-link">
+                    💡 分からない場合は参考例としてこちらをクリック(タップ)
+                </span>
+                
+                <select id="qSelect" onchange="applySelection('qSelect', 'customQ')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
+                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
+                </select>
             </div>
 
             <button onclick="generate()" class="w-full btn-primary p-5 rounded-2xl text-2xl font-bold shadow-xl">🚀 プロンプトを生成する</button>
@@ -131,7 +125,7 @@
     </div>
 
     <script>
-        // データ定義（真面目版）
+        // データ定義
         const MODES = {
             "📈 攻め（売買・戦略）": {
                 chars: [
@@ -213,7 +207,7 @@
             },
             "📰 記事・ニュース入力": {
                 chars: [
-                    "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター",
+                    "【📰 記事】売買判断のプロ", "【📰 記事】暗号解読のプロ", "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター",
                     "【📰 記事】行論の裏を読む陰謀論者（？）", "【📰 記事】関連セクター波及予測マシン", "【📰 記事】SNSでの拡散度・影響力測定器"
                 ],
                 questions: [
@@ -257,10 +251,13 @@
             const data = MODES[currentMode];
             
             // リストをリセットして再構築
-            charSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に反映</option>';
+            charSelect.innerHTML = ""; // 自由入力廃止のためクリア
             qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に反映</option>';
             
+            // キャラリスト生成
             data.chars.forEach(c => charSelect.add(new Option(c, c)));
+            
+            // 質問リスト生成
             data.questions.forEach(q => qSelect.add(new Option(q, q)));
             
             // モードボタンの見た目更新
@@ -269,14 +266,15 @@
             // 記事モードかどうかで表示切り替え
             const isArticle = currentMode.includes("記事");
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
+            // 記事モードならティッカーエリア（証券コード）を隠すかどうか
+            // ※「記事・ニュース入力」でも「銘柄の実在チェック」はあったほうが便利という意見もあるので
+            // 今回は「入力欄なし・リスト選択」の要望に合わせて、記事モードはティッカーを隠す（従来通り）にします。
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
             
-            // 入力欄をクリア（モードが変わった時だけ）
-            document.getElementById('customChar').value = "";
+            // 入力欄をクリア
             document.getElementById('customQ').value = "";
             
             // セレクトボックスを隠す
-            charSelect.classList.remove('show');
             qSelect.classList.remove('show');
 
             updateYahooLink();
@@ -294,6 +292,7 @@
             const input = document.getElementById(inputId);
             if (select.value) {
                 input.value = select.value;
+                // 反映したら隠す？（お好みで。今回は残す仕様）
             }
         }
 
@@ -326,20 +325,21 @@
         function randomChar() {
             const data = MODES[currentMode];
             const rand = data.chars[Math.floor(Math.random() * data.chars.length)];
-            // 入力欄に直接入れる
-            document.getElementById('customChar').value = rand;
+            // プルダウンの選択を変更する
+            charSelect.value = rand;
         }
 
         function generate() {
-            const char = document.getElementById('customChar').value;
+            // キャラはプルダウンから直接取得
+            const char = document.getElementById('charSelect').value;
             const q = document.getElementById('customQ').value;
             const t = document.getElementById('ticker').value || "";
             const d = document.getElementById('detail').value;
             
             const isArticle = currentMode.includes("記事");
             
-            // エラーチェック（真面目文言）
-            if(!char) { alert("担当キャラクターを入力してください。"); return; }
+            // エラーチェック
+            if(!char) { alert("担当キャラクターを選択してください。"); return; }
             if(!q) { alert("聞きたいことを入力してください。"); return; }
             if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース）を入力してください。"); return; }
 
