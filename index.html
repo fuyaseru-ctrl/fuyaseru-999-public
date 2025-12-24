@@ -12,8 +12,12 @@
         .btn-primary:hover { background-color: #e63e3e; transform: translateY(-1px); }
         .mode-btn { transition: 0.2s; border: 1px solid #ddd; font-weight: bold; font-size: 0.75rem; }
         .mode-btn.active { background-color: #ff4b4b; color: white; border-color: #ff4b4b; box-shadow: 0 2px 4px rgba(255,75,75,0.3); }
-        .yahoo-link { display: inline-flex; align-items: center; gap: 4px; color: #ff0033; font-weight: bold; font-size: 0.9rem; text-decoration: none; margin-top: 8px; transition: 0.2s; }
-        .yahoo-link:hover { color: #cc0000; text-decoration: underline; }
+        /* リンクエリアのスタイル強化 */
+        .yahoo-link-container { display: none; margin-top: 10px; padding: 10px; background-color: #eaf4ff; border-radius: 6px; border-left: 5px solid #0056b3; }
+        .yahoo-link-container.active { display: block; }
+        .yahoo-link { display: inline-flex; align-items: center; gap: 4px; color: #0056b3; font-weight: bold; font-size: 1rem; text-decoration: none; transition: 0.2s; }
+        .yahoo-link:hover { color: #003d82; text-decoration: underline; }
+        .warning-text { color: #d9534f; font-size: 0.85em; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -63,15 +67,18 @@
                     <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
                     <div class="flex flex-col">
                         <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
-                        <a id="yahooLink" href="#" target="_blank" class="yahoo-link hidden">
-                            🔍 Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！
-                        </a>
+                        
+                        <div id="yahooLinkContainer" class="yahoo-link-container">
+                            <a id="yahooLink" href="#" target="_blank" class="yahoo-link">
+                                🔍 Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！
+                            </a>
+                            <p class="warning-text">※存在しない銘柄だとAIが適当な回答をするので、確認必須！⇧クリックで確認</p>
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">※AIは架空の銘柄もそれっぽく語ってしまうので、実在チェックしてね！</p>
                 </div>
                 
-                <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・心の叫び</label>
-                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" placeholder="ここにコピペしてにゃ！"></textarea>
+                <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・関心ごと</label>
+                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" placeholder="ここにコピペ（記事内容を貼り付け）"></textarea>
             </div>
 
             <button onclick="generate()" class="w-full btn-primary p-5 rounded-2xl text-2xl font-bold shadow-xl">🚀 プロンプトを生成する</button>
@@ -226,15 +233,14 @@
             const ticker = document.getElementById('ticker').value;
             const link = document.getElementById('yahooLink');
             const display = document.getElementById('tickerDisplay');
+            const container = document.getElementById('yahooLinkContainer');
             
             if (ticker && ticker.match(/^\d{4}$/)) {
                 link.href = `https://finance.yahoo.co.jp/quote/${ticker}.T`;
                 display.innerText = ticker;
-                link.classList.remove('hidden');
-                link.classList.add('flex');
+                container.classList.add('active'); // コンテナを表示
             } else {
-                link.classList.add('hidden');
-                link.classList.remove('flex');
+                container.classList.remove('active'); // コンテナを非表示
             }
         }
 
