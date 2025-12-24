@@ -264,6 +264,9 @@
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
             
+            // 重要：モード切替時に入力欄をクリアする（前の質問が残らないように）
+            document.getElementById('detail').value = "";
+            
             // セレクトボックスを隠す
             qSelect.classList.remove('show');
 
@@ -276,18 +279,32 @@
             el.classList.toggle('show');
         }
 
-        // 質問を選択したらテキストエリアに追加する
+        // 質問を選択したらテキストエリアに追加（または上書き）する機能
         function appendQuestion() {
             const select = document.getElementById('qSelect');
             const textarea = document.getElementById('detail');
-            if (select.value) {
-                const currentVal = textarea.value;
-                // 既にテキストがある場合は改行して追加
-                const separator = currentVal.length > 0 ? "\n\n【聞きたいこと】\n" : "【聞きたいこと】\n";
-                textarea.value = currentVal + separator + select.value;
-                // 選択をリセット（連続で追加できるように）
+            const currentVal = textarea.value;
+            const selectedQ = select.value;
+            
+            if (selectedQ) {
+                // スマート上書きロジック
+                // もし「現在の入力値」が「リスト内の他の質問」と完全に一致していたら、追記ではなく「置き換え」を行う
+                // これで「選び直したい」時に連投されるのを防ぐ
+                const currentQuestions = MODES[currentMode].questions;
+                const isJustQuestion = currentQuestions.includes(currentVal.trim());
+                
+                if (isJustQuestion) {
+                    // 入力欄が質問文だけの場合 → 置き換え
+                    textarea.value = selectedQ;
+                } else {
+                    // 他の文章（記事など）がある場合 → 末尾に追加
+                    // 【聞きたいこと】というラベルは削除して、シンプルに改行だけ入れる
+                    const separator = currentVal.length > 0 ? "\n\n" : "";
+                    textarea.value = currentVal + separator + selectedQ;
+                }
+                
+                // 選択をリセット
                 select.value = "";
-                // select.classList.remove('show'); // 隠すかどうかはお好みで
             }
         }
         
@@ -302,25 +319,22 @@
 
         function updateYahooLink() {
             const rawInput = document.getElementById('ticker').value;
-            const normalized = normalizeString(rawInput); // 全角・小文字対応
+            const normalized = normalizeString(rawInput);
             
             const link = document.getElementById('yahooLink');
             const display = document.getElementById('tickerDisplay');
             const container = document.getElementById('yahooLinkContainer');
             
-            // 4桁数字(日本株) OR アルファベット(米国株)の場合に反応
             if (normalized.match(/^\d{4}$/) || normalized.match(/^[A-Z]+$/)) {
                 let url = "";
                 if (normalized.match(/^\d{4}$/)) {
-                    // 日本株
                     url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
                 } else {
-                    // 米国株など（Yahooファイナンスの仕様に合わせる）
                     url = `https://finance.yahoo.co.jp/quote/${normalized}`;
                 }
                 
                 link.href = url;
-                display.innerText = normalized; // 変換後の値を表示
+                display.innerText = normalized;
                 container.classList.add('active');
             } else {
                 container.classList.remove('active');
