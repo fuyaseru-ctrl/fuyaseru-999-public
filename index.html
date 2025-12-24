@@ -12,6 +12,8 @@
         .btn-primary:hover { background-color: #e63e3e; transform: translateY(-1px); }
         .mode-btn { transition: 0.2s; border: 1px solid #ddd; font-weight: bold; font-size: 0.75rem; }
         .mode-btn.active { background-color: #ff4b4b; color: white; border-color: #ff4b4b; box-shadow: 0 2px 4px rgba(255,75,75,0.3); }
+        .yahoo-link { display: inline-flex; align-items: center; gap: 4px; color: #ff0033; font-weight: bold; font-size: 0.9rem; text-decoration: none; margin-top: 8px; transition: 0.2s; }
+        .yahoo-link:hover { color: #cc0000; text-decoration: underline; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -59,9 +61,16 @@
             <div class="mb-6 border-t pt-4">
                 <div id="tickerArea">
                     <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
-                    <input type="text" id="ticker" class="w-full p-3 border-2 rounded-lg mb-4" placeholder="例: 7203, sony">
+                    <div class="flex flex-col">
+                        <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
+                        <a id="yahooLink" href="#" target="_blank" class="yahoo-link hidden">
+                            🔍 Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！
+                        </a>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">※AIは架空の銘柄でも嘘をつくので、必ずチェックしてね！</p>
                 </div>
-                <label id="detailLabel" class="block font-bold mb-2 text-gray-700">ニュース・記事・心の叫び</label>
+                
+                <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・心の叫び</label>
                 <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" placeholder="ここにコピペしてにゃ！"></textarea>
             </div>
 
@@ -78,7 +87,7 @@
     </div>
 
     <script>
-        // ▼ ここが進化ポイント！各モードに「rules」を追加したわ！ ▼
+        // --- データの定義 ---
         const MODES = {
             "📈 攻め（売買・戦略）": {
                 chars: [
@@ -206,9 +215,31 @@
             data.chars.forEach(c => charSelect.add(new Option(c)));
             data.questions.forEach(q => qSelect.add(new Option(q)));
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === currentMode));
+            
             const isArticle = currentMode.includes("記事");
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
+            
+            // モード切り替え時にYahooリンクの状態もリセット
+            updateYahooLink();
+        }
+
+        // --- Yahooリンク更新機能 ---
+        function updateYahooLink() {
+            const ticker = document.getElementById('ticker').value;
+            const link = document.getElementById('yahooLink');
+            const display = document.getElementById('tickerDisplay');
+            
+            // 4桁の数字が入力された時だけリンクを表示
+            if (ticker && ticker.match(/^\d{4}$/)) {
+                link.href = `https://finance.yahoo.co.jp/quote/${ticker}.T`;
+                display.innerText = ticker;
+                link.classList.remove('hidden');
+                link.classList.add('flex');
+            } else {
+                link.classList.add('hidden');
+                link.classList.remove('flex');
+            }
         }
 
         Object.keys(MODES).forEach(m => {
@@ -236,9 +267,7 @@
             const isArticle = currentMode.includes("記事");
             if(!d && (!isArticle && !t)) { alert("中身を入力してにゃ！"); return; }
 
-            // 選択されたモードのルールを取得（なければデフォルト）
-            const modeRules = MODES[currentMode].rules || 
-                "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
+            const modeRules = MODES[currentMode].rules || "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
 
             let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n## ユーザー情報・相談内容\n`;
             
