@@ -70,7 +70,7 @@
             <div id="tickerArea" class="mb-6 pt-4 border-t">
                 <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
                 <div class="flex flex-col">
-                    <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203, AAPL (全角・小文字OK)">
+                    <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203, 218a (全角・小文字OK)">
                     
                     <div id="yahooLinkContainer" class="yahoo-link-container">
                         <a id="yahooLink" href="#" target="_blank" class="yahoo-link">
@@ -264,7 +264,7 @@
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
             
-            // 重要：モード切替時に入力欄をクリアする（前の質問が残らないように）
+            // モード切替時に入力欄をクリアする
             document.getElementById('detail').value = "";
             
             // セレクトボックスを隠す
@@ -288,8 +288,6 @@
             
             if (selectedQ) {
                 // スマート上書きロジック
-                // もし「現在の入力値」が「リスト内の他の質問」と完全に一致していたら、追記ではなく「置き換え」を行う
-                // これで「選び直したい」時に連投されるのを防ぐ
                 const currentQuestions = MODES[currentMode].questions;
                 const isJustQuestion = currentQuestions.includes(currentVal.trim());
                 
@@ -298,7 +296,7 @@
                     textarea.value = selectedQ;
                 } else {
                     // 他の文章（記事など）がある場合 → 末尾に追加
-                    // 【聞きたいこと】というラベルは削除して、シンプルに改行だけ入れる
+                    // 【聞きたいこと】というラベルは削除し、改行のみ
                     const separator = currentVal.length > 0 ? "\n\n" : "";
                     textarea.value = currentVal + separator + selectedQ;
                 }
@@ -325,13 +323,11 @@
             const display = document.getElementById('tickerDisplay');
             const container = document.getElementById('yahooLinkContainer');
             
-            if (normalized.match(/^\d{4}$/) || normalized.match(/^[A-Z]+$/)) {
-                let url = "";
-                if (normalized.match(/^\d{4}$/)) {
-                    url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
-                } else {
-                    url = `https://finance.yahoo.co.jp/quote/${normalized}`;
-                }
+            // 修正：4桁の英数字（例：218A, 7203）はすべて日本株(.T)として扱う
+            // 外国株は無視するため、4文字なら.Tをつける
+            if (normalized.match(/^[0-9A-Z]{4}$/)) {
+                // 基本的にすべて日本株(.T)扱い
+                const url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
                 
                 link.href = url;
                 display.innerText = normalized;
