@@ -102,8 +102,8 @@
                     <span onclick="toggleSelect('qSelect')" class="helper-link">
                         💡 分からない場合は参考例としてこちらをクリック(タップ)
                     </span>
-                    <select id="qSelect" onchange="appendQuestion()" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none mt-2">
-                        <option value="" disabled selected>▼ リストから選択して入力欄に追加</option>
+                    <select id="qSelect" onchange="replaceWithQuestion()" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none mt-2">
+                        <option value="" disabled selected>▼ リストから選択して入力欄を書き換え（Undo可能）</option>
                     </select>
                 </div>
             </div>
@@ -234,7 +234,6 @@
             }
         };
 
-        // 修正：現実感のある時間軸リスト
         const TIME_HORIZONS = [
             "当日以内（デイトレ）",
             "３日程度（超短期）",
@@ -263,7 +262,7 @@
             
             // リストをリセットして再構築
             charSelect.innerHTML = "";
-            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に追加</option>';
+            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄を書き換え（Undo可能）</option>';
             
             // キャラリスト生成
             data.chars.forEach(c => charSelect.add(new Option(c, c)));
@@ -294,26 +293,23 @@
             el.classList.toggle('show');
         }
 
-        // 質問を選択したらテキストエリアに追加（または上書き）する機能
-        function appendQuestion() {
+        // 質問を選択したらテキストエリアを「全置換」する機能（Undo可能）
+        function replaceWithQuestion() {
             const select = document.getElementById('qSelect');
             const textarea = document.getElementById('detail');
-            const currentVal = textarea.value;
             const selectedQ = select.value;
             
             if (selectedQ) {
-                // スマート上書きロジック
-                const currentQuestions = MODES[currentMode].questions;
-                const isJustQuestion = currentQuestions.includes(currentVal.trim());
+                textarea.focus(); // フォーカスを当てる
+                textarea.select(); // 全選択する
                 
-                if (isJustQuestion) {
-                    // 入力欄が質問文だけの場合 → 置き換え
+                // ブラウザの標準機能（execCommand）を使って書き換えることで、
+                // ユーザーが入力したのと同じ扱いになり、Ctrl+Zで戻れるようになる
+                const success = document.execCommand('insertText', false, selectedQ);
+                
+                // 万が一 execCommand が効かない環境へのフォールバック
+                if (!success) {
                     textarea.value = selectedQ;
-                } else {
-                    // 他の文章（記事など）がある場合 → 末尾に追加
-                    // 【聞きたいこと】というラベルは削除し、改行のみ
-                    const separator = currentVal.length > 0 ? "\n\n" : "";
-                    textarea.value = currentVal + separator + selectedQ;
                 }
                 
                 // 選択をリセット
@@ -338,9 +334,7 @@
             const display = document.getElementById('tickerDisplay');
             const container = document.getElementById('yahooLinkContainer');
             
-            // 4桁の英数字（例：218A, 7203）はすべて日本株(.T)として扱う
             if (normalized.match(/^[0-9A-Z]{4}$/)) {
-                // 基本的にすべて日本株(.T)扱い
                 const url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
                 
                 link.href = url;
@@ -375,7 +369,6 @@
             
             const isArticle = currentMode.includes("記事");
             
-            // エラーチェック
             if(!char) { alert("担当キャラクターを選択してください。"); return; }
             if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース・相談）を入力してください。"); return; }
 
