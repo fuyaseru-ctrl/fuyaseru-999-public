@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フヤセルプロンプト 🐈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .btn-primary { background-color: #ff4b4b; color: white; transition: 0.2s; }
+        .btn-primary:hover { background-color: #e63e3e; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center gap-6 mb-8">
+            <img src="huya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616430.png'">
+            <div>
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-800">フヤセルプロンプト</h1>
+                <p class="text-gray-500">〜 爆速HTML版 🐈 〜</p>
+            </div>
+        </div>
+
+        <div class="card p-6 mb-6">
+            <label class="block font-bold mb-2 text-gray-700">分析モード</label>
+            <div id="modeButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6"></div>
+
+            <label class="block font-bold mb-2 text-gray-700">担当キャラクター</label>
+            <select id="charSelect" class="w-full p-2 border rounded mb-4"></select>
+            
+            <label class="block font-bold mb-2 text-gray-700">聞きたいこと（メイン）</label>
+            <select id="qSelect" class="w-full p-2 border rounded mb-6"></select>
+
+            <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
+            <input type="text" id="ticker" class="w-full p-2 border rounded mb-4" placeholder="例: 7203, sony">
+
+            <label class="block font-bold mb-2 text-gray-700">ニュース・記事・心の叫び</label>
+            <textarea id="detail" class="w-full p-2 border rounded h-40 mb-6" placeholder="ここに貼り付けてにゃ！"></textarea>
+
+            <button onclick="generate()" class="w-full btn-primary p-4 rounded-xl text-xl font-bold shadow-lg">🚀 プロンプトを生成する</button>
+        </div>
+
+        <div id="resultArea" class="hidden">
+            <div class="card p-6 border-t-4 border-green-500">
+                <h2 class="text-xl font-bold mb-4 text-green-700">📝 生成完了にゃ！これをAIに貼ってね</h2>
+                <pre id="outputText" class="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-sm mb-4 whitespace-pre-wrap"></pre>
+                <button id="copyBtn" onclick="copy()" class="bg-white border-2 border-gray-300 p-3 rounded-lg font-bold hover:bg-gray-50 w-full md:w-auto">📋 コピーする</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // よーすけの全データを移植！
+        const MODES = {
+            "📈 攻め": {
+                chars: ["【🟩 売買】短期売買コーチ", "【🟩 売買】スイング職人", "【🟩 売買】順張り隊長", "【🟩 売買】逆張り名人"],
+                questions: ["今入っていい？", "押し目はどこ？", "チャート的に上に行きそう？"]
+            },
+            "🛡️ 守り": {
+                chars: ["【🟥 辛口】鬼上司投資顧問", "【🟥 辛口】ポジポジ病矯正官", "【🟩 戦略】資金管理マネージャー"],
+                questions: ["含み損が辛い。切るべき？", "適正なポジション量は？", "どこで利確すべき？"]
+            },
+            "📊 分析": {
+                chars: ["【🟦 分析】需給探偵", "【🟦 分析】決算職人", "【🟦 分析】会社四季報の虫"],
+                questions: ["決算内容を評価して", "PER・PBRから見て割安？", "理論株価はいくら？"]
+            },
+            "🔰 初心者": {
+                chars: ["【🟪 初心】投資を噛み砕く先生", "【🟫 遊び】フヤにゃん", "【🟪 メンタル】褒めちぎり隊長"],
+                questions: ["初心者でも買って大丈夫？", "メンタルボロボロ。励まして...", "フヤにゃん的にこの銘柄好き？"]
+            }
+        };
+
+        let currentMode = "📈 攻め";
+        const charSelect = document.getElementById('charSelect');
+        const qSelect = document.getElementById('qSelect');
+
+        function updateUI() {
+            const modeData = MODES[currentMode];
+            charSelect.innerHTML = "";
+            qSelect.innerHTML = "";
+            modeData.chars.forEach(c => charSelect.add(new Option(c)));
+            modeData.questions.forEach(q => qSelect.add(new Option(q)));
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('bg-red-500', btn.innerText === currentMode);
+                btn.classList.toggle('text-white', btn.innerText === currentMode);
+            });
+        }
+
+        // モードボタン作成
+        const modeContainer = document.getElementById('modeButtons');
+        Object.keys(MODES).forEach(m => {
+            const btn = document.createElement('button');
+            btn.innerText = m;
+            btn.className = "mode-btn p-2 rounded border font-bold text-sm bg-gray-50";
+            btn.onclick = () => { currentMode = m; updateUI(); };
+            modeContainer.appendChild(btn);
+        });
+
+        function generate() {
+            const char = charSelect.value;
+            const q = qSelect.value;
+            const t = document.getElementById('ticker').value || "（データ参照）";
+            const d = document.getElementById('detail').value;
+            if(!d) { alert("中身を入れてほしいにゃ！"); return; }
+            const prompt = `# 指令\nあなたは「${char}」です。\n\n## 相談: ${q}\n## 対象: ${t}\n## 入力データ:\n${d}\n\n## ルール\n1.結論から 2.根拠を示す 3.キャラを貫く`;
+            document.getElementById('outputText').innerText = prompt;
+            document.getElementById('resultArea').classList.remove('hidden');
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function copy() {
+            const text = document.getElementById('outputText').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerText = "✅ コピー完了！";
+                setTimeout(() => btn.innerText = "📋 コピーする", 2000);
+            });
+        }
+        updateUI();
+    </script>
+</body>
+</html>
