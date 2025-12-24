@@ -234,7 +234,22 @@
             }
         };
 
-        const TIME_HORIZONS = ["指定なし", "当日", "数週", "半年", "1年以上"];
+        // 修正：現実感のある時間軸リスト
+        const TIME_HORIZONS = [
+            "当日以内（デイトレ）",
+            "３日程度（超短期）",
+            "１週間程度（スイング）",
+            "２週間程度（スイング）",
+            "１ヶ月程度（短中期）",
+            "３ヶ月以内（中短期）",
+            "６ヶ月以内（中期）",
+            "１年程度（中長期）",
+            "３年程度（長期）",
+            "５年以上（業績・配当・応援投資）",
+            "１０年以上（超長期）",
+            "２０年以上（ドルコスト平均法推奨）"
+        ];
+        
         const STATUS_OPTIONS = ["未保有", "含み益中", "含み損中", "監視中", "勉強中"];
 
         let currentMode = Object.keys(MODES)[0];
@@ -323,8 +338,7 @@
             const display = document.getElementById('tickerDisplay');
             const container = document.getElementById('yahooLinkContainer');
             
-            // 修正：4桁の英数字（例：218A, 7203）はすべて日本株(.T)として扱う
-            // 外国株は無視するため、4文字なら.Tをつける
+            // 4桁の英数字（例：218A, 7203）はすべて日本株(.T)として扱う
             if (normalized.match(/^[0-9A-Z]{4}$/)) {
                 // 基本的にすべて日本株(.T)扱い
                 const url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
