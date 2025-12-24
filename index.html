@@ -210,8 +210,32 @@
             const q = document.getElementById('customQ').value || qSelect.value;
             const t = document.getElementById('ticker').value || "";
             const d = document.getElementById('detail').value;
-            if(!d && !t) { alert("中身を入力してにゃ！"); return; }
-            const prompt = `# 指令\nあなたは「${char}」です。完璧に再現して相談に乗ってください。\n\n## 相談\n- 内容: ${q}\n- 対象: ${t || "データ参照"}\n- 状況: ${document.getElementById('statusSelect').value} / ${document.getElementById('timeSelect').value}\n\n## 入力データ\n${d}\n\n## ルール\n1.結論から 2.根拠を示す 3.キャラを貫く`;
+            
+            // 記事モードなら必須チェックを緩和（tickerなくてもOK）
+            const isArticle = currentMode.includes("記事");
+            if(!d && (!isArticle && !t)) { alert("中身を入力してにゃ！"); return; }
+
+            // Python版を完全再現したプロンプト生成ロジック
+            let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n## ユーザー情報・相談内容\n`;
+            
+            if (!isArticle) {
+                prompt += `- **現在の状態**: ${document.getElementById('statusSelect').value}\n`;
+                prompt += `- **投資の時間軸**: ${document.getElementById('timeSelect').value}\n`;
+            }
+            
+            prompt += `- **聞きたいこと**: ${q}\n\n`;
+            
+            const targetDisplay = isArticle ? "記事・ニュース内に登場する銘柄、または記事そのもの" : (t || "（以下のテキストデータ参照）");
+            prompt += `## 対象\n${targetDisplay}\n\n`;
+            
+            prompt += `## 入力データ（ニュース・記事・メモ）\n${d}\n\n`;
+            
+            prompt += `## 回答のルール\n`;
+            prompt += `1. **結論から書く**: 最初にズバリと回答してください。\n`;
+            prompt += `2. **根拠を示す**: なぜそう判断したのか、論理的（または感情的）な理由を述べてください。\n`;
+            prompt += `3. **キャラを貫く**: 指定されたキャラクターとして、ターゲット読者に刺さる言葉選びをしてください。\n`;
+            prompt += `4. **形式**: 読みやすいマークダウン形式（重要な数値は**太字**）`;
+
             document.getElementById('outputText').innerText = prompt;
             document.getElementById('resultArea').classList.remove('hidden');
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
