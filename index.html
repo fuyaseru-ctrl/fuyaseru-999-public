@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>フヤセルプロンプト 🐈</title>
+    <title>フヤセルプロンプト</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f8f9fa; font-family: 'Helvetica Neue', Arial, sans-serif; }
@@ -13,34 +13,41 @@
         .mode-btn { transition: 0.2s; border: 1px solid #ddd; font-weight: bold; font-size: 0.75rem; }
         .mode-btn.active { background-color: #ff4b4b; color: white; border-color: #ff4b4b; box-shadow: 0 2px 4px rgba(255,75,75,0.3); }
         
-        /* 修正箇所：リンクエリアのスタイル強化（スマホ対応） */
+        /* リンクエリアのスタイル */
         .yahoo-link-container { display: none; margin-top: 10px; padding: 12px; background-color: #eaf4ff; border-radius: 8px; border-left: 5px solid #0056b3; }
         .yahoo-link-container.active { display: block; }
         
         .yahoo-link { 
-            display: flex; /* フレックスボックスを使用 */
-            align-items: flex-start; /* アイコンを上揃えにして、文字が複数行になっても崩れないようにする */
-            gap: 8px; /* アイコンと文字の間隔 */
+            display: flex; 
+            align-items: flex-start; 
+            gap: 8px; 
             color: #0056b3; 
             font-weight: bold; 
-            font-size: 0.95rem; /* スマホで見やすいサイズに微調整 */
+            font-size: 0.95rem; 
             text-decoration: none; 
             transition: 0.2s; 
-            line-height: 1.5; /* 行間を空けて読みやすく */
+            line-height: 1.5; 
         }
         .yahoo-link:hover { color: #003d82; text-decoration: underline; }
-        .yahoo-icon { min-width: 20px; } /* アイコンが潰れないように幅を確保 */
-        
-        .warning-text { color: #d9534f; font-size: 0.8em; margin-top: 8px; font-weight: bold; padding-left: 28px; /* アイコン分インデント */ }
+        .yahoo-icon { min-width: 20px; }
+        .warning-text { color: #d9534f; font-size: 0.8em; margin-top: 8px; font-weight: bold; padding-left: 28px; }
+
+        /* 参考例リンクのスタイル */
+        .helper-link { font-size: 0.85rem; color: #666; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
+        .helper-link:hover { color: #ff4b4b; }
+        .hidden-select { display: none; margin-top: 8px; }
+        .hidden-select.show { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
         <div class="flex items-center gap-6 mb-8">
-            <img src="huya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616430.png'">
+            <img src="huya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
             <div>
                 <h1 class="text-2xl md:text-4xl font-bold text-gray-800">フヤセルプロンプト</h1>
-                <p class="text-gray-500 font-bold">〜 自動生成器 🐈 〜</p>
+                <p class="text-gray-500 font-bold">〜 自動生成ツール 〜</p>
             </div>
         </div>
 
@@ -55,14 +62,28 @@
 
             <div class="mb-6">
                 <label class="block font-bold mb-2 text-gray-700">担当キャラクター</label>
-                <select id="charSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customChar" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
+                <input type="text" id="customChar" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 熱血コーチ、冷静な分析官...">
+                
+                <span onclick="toggleSelect('charSelect')" class="helper-link">
+                    💡 分からない場合は参考例としてこちらをクリック(タップ)
+                </span>
+                
+                <select id="charSelect" onchange="applySelection('charSelect', 'customChar')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
+                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
+                </select>
             </div>
             
             <div class="mb-6">
                 <label class="block font-bold mb-2 text-gray-700">聞きたいこと</label>
-                <select id="qSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customQ" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
+                <input type="text" id="customQ" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 今後の見通しは？ リスクはある？">
+                
+                <span onclick="toggleSelect('qSelect')" class="helper-link">
+                    💡 分からない場合は参考例としてこちらをクリック(タップ)
+                </span>
+                
+                <select id="qSelect" onchange="applySelection('qSelect', 'customQ')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
+                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
+                </select>
             </div>
 
             <div id="extraOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
@@ -93,7 +114,8 @@
                 </div>
                 
                 <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・関心ごと</label>
-                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" placeholder="ここにコピペ（記事内容を貼り付け）"></textarea>
+                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" 
+                placeholder="ここに聞きたいことを入力、あるいはコピペ（記事内容を貼り付けなど）"></textarea>
             </div>
 
             <button onclick="generate()" class="w-full btn-primary p-5 rounded-2xl text-2xl font-bold shadow-xl">🚀 プロンプトを生成する</button>
@@ -101,7 +123,7 @@
 
         <div id="resultArea" class="hidden mb-20">
             <div class="card p-6 border-t-8 border-green-500">
-                <h2 class="text-xl font-bold mb-4 text-green-700">📝 生成完了にゃ！</h2>
+                <h2 class="text-xl font-bold mb-4 text-green-700">📝 生成完了</h2>
                 <pre id="outputText" class="bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto text-sm mb-4 whitespace-pre-wrap border-2 border-gray-700"></pre>
                 <button id="copyBtn" onclick="copy()" class="bg-white border-2 border-gray-300 p-4 rounded-xl font-bold hover:bg-gray-50 w-full md:w-auto text-lg">📋 コピーする</button>
             </div>
@@ -109,6 +131,7 @@
     </div>
 
     <script>
+        // データ定義（真面目版）
         const MODES = {
             "📈 攻め（売買・戦略）": {
                 chars: [
@@ -151,7 +174,7 @@
             },
             "🔰 初心者・メンタル": {
                 chars: [
-                    "【🟪 初心】投資を噛み砕く先生", "【🟪 メンタル】感情整理カウンセラー", "【🟪 メンタル】「今日は休め」と言う人", "【🟫 遊び】逆神おじさん", "【🟪 初心】専門用語禁止の優しい先輩", "【🟪 メンタル】褒めちぎり隊長", "【🟪 初心】歴史の先生", "【🟫 遊び】フヤにゃん", "【🟪 メンタル】瞑想導入係", "【🟪 初心】積立NISAとの比較お姉さん",
+                    "【🟪 初心】投資を噛み砕く先生", "【🟪 メンタル】感情整理カウンセラー", "【🟪 メンタル】「今日は休め」と言う人", "【🟫 遊び】逆神おじさん", "【🟪 初心】専門用語禁止の優しい先輩", "【🟪 メンタル】褒めちぎり隊長", "【🟪 初心】歴史の先生", "【🟪 メンタル】瞑想導入係", "【🟪 初心】積立NISAとの比較お姉さん",
                     "【🟪 初心】損出し・節税の相談お兄さん", "【🟪 メンタル】勝ち負けより継続を説く僧侶", "【🟫 遊び】大勝ちを夢見る妄想フレンド"
                 ],
                 questions: [
@@ -190,7 +213,7 @@
             },
             "📰 記事・ニュース入力": {
                 chars: [
-                    "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター", "【📰 記事】フヤにゃん",
+                    "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター",
                     "【📰 記事】行論の裏を読む陰謀論者（？）", "【📰 記事】関連セクター波及予測マシン", "【📰 記事】SNSでの拡散度・影響力測定器"
                 ],
                 questions: [
@@ -229,19 +252,49 @@
         const charSelect = document.getElementById('charSelect');
         const qSelect = document.getElementById('qSelect');
 
+        // UI初期化・更新
         function updateUI() {
             const data = MODES[currentMode];
-            charSelect.innerHTML = "";
-            qSelect.innerHTML = "";
-            data.chars.forEach(c => charSelect.add(new Option(c)));
-            data.questions.forEach(q => qSelect.add(new Option(q)));
+            
+            // リストをリセットして再構築
+            charSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に反映</option>';
+            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に反映</option>';
+            
+            data.chars.forEach(c => charSelect.add(new Option(c, c)));
+            data.questions.forEach(q => qSelect.add(new Option(q, q)));
+            
+            // モードボタンの見た目更新
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === currentMode));
             
+            // 記事モードかどうかで表示切り替え
             const isArticle = currentMode.includes("記事");
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
             
+            // 入力欄をクリア（モードが変わった時だけ）
+            document.getElementById('customChar').value = "";
+            document.getElementById('customQ').value = "";
+            
+            // セレクトボックスを隠す
+            charSelect.classList.remove('show');
+            qSelect.classList.remove('show');
+
             updateYahooLink();
+        }
+
+        // セレクトボックスの表示・非表示切り替え
+        function toggleSelect(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+        }
+
+        // セレクトボックスで選んだら入力欄に反映させる
+        function applySelection(selectId, inputId) {
+            const select = document.getElementById(selectId);
+            const input = document.getElementById(inputId);
+            if (select.value) {
+                input.value = select.value;
+            }
         }
 
         function updateYahooLink() {
@@ -253,9 +306,9 @@
             if (ticker && ticker.match(/^\d{4}$/)) {
                 link.href = `https://finance.yahoo.co.jp/quote/${ticker}.T`;
                 display.innerText = ticker;
-                container.classList.add('active'); // コンテナを表示
+                container.classList.add('active');
             } else {
-                container.classList.remove('active'); // コンテナを非表示
+                container.classList.remove('active');
             }
         }
 
@@ -272,17 +325,23 @@
 
         function randomChar() {
             const data = MODES[currentMode];
-            charSelect.selectedIndex = Math.floor(Math.random() * data.chars.length);
+            const rand = data.chars[Math.floor(Math.random() * data.chars.length)];
+            // 入力欄に直接入れる
+            document.getElementById('customChar').value = rand;
         }
 
         function generate() {
-            const char = document.getElementById('customChar').value || charSelect.value;
-            const q = document.getElementById('customQ').value || qSelect.value;
+            const char = document.getElementById('customChar').value;
+            const q = document.getElementById('customQ').value;
             const t = document.getElementById('ticker').value || "";
             const d = document.getElementById('detail').value;
             
             const isArticle = currentMode.includes("記事");
-            if(!d && (!isArticle && !t)) { alert("中身を入力してにゃ！"); return; }
+            
+            // エラーチェック（真面目文言）
+            if(!char) { alert("担当キャラクターを入力してください。"); return; }
+            if(!q) { alert("聞きたいことを入力してください。"); return; }
+            if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース）を入力してください。"); return; }
 
             const modeRules = MODES[currentMode].rules || "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
 
@@ -312,7 +371,7 @@
             const text = document.getElementById('outputText').innerText;
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copyBtn');
-                btn.innerText = "✅ コピー完了！";
+                btn.innerText = "✅ コピー完了";
                 setTimeout(() => btn.innerText = "📋 コピーする", 2000);
             });
         }
