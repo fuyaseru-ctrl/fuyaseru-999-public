@@ -33,7 +33,7 @@
         .warning-text { color: #d9534f; font-size: 0.8em; margin-top: 8px; font-weight: bold; padding-left: 28px; }
 
         /* 参考例リンクのスタイル */
-        .helper-link { font-size: 0.85rem; color: #666; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; }
+        .helper-link { font-size: 0.85rem; color: #666; cursor: pointer; text-decoration: underline; margin-top: 8px; display: inline-block; }
         .helper-link:hover { color: #ff4b4b; }
         .hidden-select { display: none; margin-top: 8px; }
         .hidden-select.show { display: block; animation: fadeIn 0.3s; }
@@ -52,7 +52,7 @@
         </div>
 
         <div class="card p-6 mb-6">
-            <label class="block font-bold mb-3 text-gray-700 text-lg">1. 分析モードを選択</label>
+            <label class="block font-bold mb-3 text-gray-700 text-lg">分析モードを選択</label>
             <div id="modeButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -61,16 +61,16 @@
             </div>
 
             <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">2. 担当キャラクターを選択</label>
+                <label class="block font-bold mb-2 text-gray-700">担当キャラクターを選択</label>
                 <select id="charSelect" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none bg-white">
                     </select>
                 <p class="text-xs text-gray-500 mt-1">※迷ったら「ランダム」ボタンを押してください</p>
             </div>
             
             <div id="tickerArea" class="mb-6 pt-4 border-t">
-                <label class="block font-bold mb-2 text-gray-700">3. 証券コード / 社名（任意）</label>
+                <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
                 <div class="flex flex-col">
-                    <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
+                    <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203, AAPL (全角・小文字OK)">
                     
                     <div id="yahooLinkContainer" class="yahoo-link-container">
                         <a id="yahooLink" href="#" target="_blank" class="yahoo-link">
@@ -93,23 +93,19 @@
                 </div>
             </div>
 
-            <div class="mb-6 pt-4 border-t">
-                <label id="detailLabel" class="block font-bold mb-2 text-gray-700">5. ニュース・記事・関心ごと</label>
+            <div class="mb-8 pt-4 border-t">
+                <label id="detailLabel" class="block font-bold mb-2 text-gray-700">ニュース・記事・関心ごと</label>
                 <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 focus:border-red-400 outline-none" 
-                placeholder="ここに聞きたいことを入力、あるいはコピペ（記事内容を貼り付けなど）"></textarea>
-            </div>
-
-            <div class="mb-8">
-                <label class="block font-bold mb-2 text-gray-700">6. 具体的に聞きたいこと</label>
-                <input type="text" id="customQ" class="w-full p-3 border-2 rounded-lg focus:border-red-400 outline-none" placeholder="例: 今後の見通しは？ リスクはある？">
+                placeholder="ここにコピペ、または聞きたいことを入力"></textarea>
                 
-                <span onclick="toggleSelect('qSelect')" class="helper-link">
-                    💡 分からない場合は参考例としてこちらをクリック(タップ)
-                </span>
-                
-                <select id="qSelect" onchange="applySelection('qSelect', 'customQ')" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none">
-                    <option value="" disabled selected>▼ リストから選択して入力欄に反映</option>
-                </select>
+                <div>
+                    <span onclick="toggleSelect('qSelect')" class="helper-link">
+                        💡 分からない場合は参考例としてこちらをクリック(タップ)
+                    </span>
+                    <select id="qSelect" onchange="appendQuestion()" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none mt-2">
+                        <option value="" disabled selected>▼ リストから選択して入力欄に追加</option>
+                    </select>
+                </div>
             </div>
 
             <button onclick="generate()" class="w-full btn-primary p-5 rounded-2xl text-2xl font-bold shadow-xl">🚀 プロンプトを生成する</button>
@@ -251,8 +247,8 @@
             const data = MODES[currentMode];
             
             // リストをリセットして再構築
-            charSelect.innerHTML = ""; // 自由入力廃止のためクリア
-            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に反映</option>';
+            charSelect.innerHTML = "";
+            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄に追加</option>';
             
             // キャラリスト生成
             data.chars.forEach(c => charSelect.add(new Option(c, c)));
@@ -266,13 +262,7 @@
             // 記事モードかどうかで表示切り替え
             const isArticle = currentMode.includes("記事");
             document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
-            // 記事モードならティッカーエリア（証券コード）を隠すかどうか
-            // ※「記事・ニュース入力」でも「銘柄の実在チェック」はあったほうが便利という意見もあるので
-            // 今回は「入力欄なし・リスト選択」の要望に合わせて、記事モードはティッカーを隠す（従来通り）にします。
             document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
-            
-            // 入力欄をクリア
-            document.getElementById('customQ').value = "";
             
             // セレクトボックスを隠す
             qSelect.classList.remove('show');
@@ -286,25 +276,51 @@
             el.classList.toggle('show');
         }
 
-        // セレクトボックスで選んだら入力欄に反映させる
-        function applySelection(selectId, inputId) {
-            const select = document.getElementById(selectId);
-            const input = document.getElementById(inputId);
+        // 質問を選択したらテキストエリアに追加する
+        function appendQuestion() {
+            const select = document.getElementById('qSelect');
+            const textarea = document.getElementById('detail');
             if (select.value) {
-                input.value = select.value;
-                // 反映したら隠す？（お好みで。今回は残す仕様）
+                const currentVal = textarea.value;
+                // 既にテキストがある場合は改行して追加
+                const separator = currentVal.length > 0 ? "\n\n【聞きたいこと】\n" : "【聞きたいこと】\n";
+                textarea.value = currentVal + separator + select.value;
+                // 選択をリセット（連続で追加できるように）
+                select.value = "";
+                // select.classList.remove('show'); // 隠すかどうかはお好みで
             }
+        }
+        
+        // 全角→半角、小文字→大文字ノーマライズ関数
+        function normalizeString(str) {
+            return str
+                .replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+                    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+                })
+                .toUpperCase();
         }
 
         function updateYahooLink() {
-            const ticker = document.getElementById('ticker').value;
+            const rawInput = document.getElementById('ticker').value;
+            const normalized = normalizeString(rawInput); // 全角・小文字対応
+            
             const link = document.getElementById('yahooLink');
             const display = document.getElementById('tickerDisplay');
             const container = document.getElementById('yahooLinkContainer');
             
-            if (ticker && ticker.match(/^\d{4}$/)) {
-                link.href = `https://finance.yahoo.co.jp/quote/${ticker}.T`;
-                display.innerText = ticker;
+            // 4桁数字(日本株) OR アルファベット(米国株)の場合に反応
+            if (normalized.match(/^\d{4}$/) || normalized.match(/^[A-Z]+$/)) {
+                let url = "";
+                if (normalized.match(/^\d{4}$/)) {
+                    // 日本株
+                    url = `https://finance.yahoo.co.jp/quote/${normalized}.T`;
+                } else {
+                    // 米国株など（Yahooファイナンスの仕様に合わせる）
+                    url = `https://finance.yahoo.co.jp/quote/${normalized}`;
+                }
+                
+                link.href = url;
+                display.innerText = normalized; // 変換後の値を表示
                 container.classList.add('active');
             } else {
                 container.classList.remove('active');
@@ -325,14 +341,11 @@
         function randomChar() {
             const data = MODES[currentMode];
             const rand = data.chars[Math.floor(Math.random() * data.chars.length)];
-            // プルダウンの選択を変更する
             charSelect.value = rand;
         }
 
         function generate() {
-            // キャラはプルダウンから直接取得
             const char = document.getElementById('charSelect').value;
-            const q = document.getElementById('customQ').value;
             const t = document.getElementById('ticker').value || "";
             const d = document.getElementById('detail').value;
             
@@ -340,24 +353,22 @@
             
             // エラーチェック
             if(!char) { alert("担当キャラクターを選択してください。"); return; }
-            if(!q) { alert("聞きたいことを入力してください。"); return; }
-            if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース）を入力してください。"); return; }
+            if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース・相談）を入力してください。"); return; }
 
             const modeRules = MODES[currentMode].rules || "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
 
-            let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n## ユーザー情報・相談内容\n`;
+            let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n`;
             
             if (!isArticle) {
+                prompt += `## ユーザー情報\n`;
                 prompt += `- **現在の状態**: ${document.getElementById('statusSelect').value}\n`;
-                prompt += `- **投資の時間軸**: ${document.getElementById('timeSelect').value}\n`;
+                prompt += `- **投資の時間軸**: ${document.getElementById('timeSelect').value}\n\n`;
             }
             
-            prompt += `- **聞きたいこと**: ${q}\n\n`;
-            
             const targetDisplay = isArticle ? "記事・ニュース内に登場する銘柄、または記事そのもの" : (t || "（以下のテキストデータ参照）");
-            prompt += `## 対象\n${targetDisplay}\n\n`;
+            prompt += `## 対象銘柄\n${targetDisplay}\n\n`;
             
-            prompt += `## 入力データ（ニュース・記事・メモ）\n${d}\n\n`;
+            prompt += `## 相談内容・入力データ\n${d}\n\n`;
             
             prompt += `## 回答のルール\n${modeRules}\n`;
             prompt += `4. **形式**: 読みやすいマークダウン形式（重要な数値は**太字**）`;
