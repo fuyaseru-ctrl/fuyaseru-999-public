@@ -1,305 +1,70 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>フヤセルプロンプト 🐈</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #f8f9fa; font-family: 'Helvetica Neue', Arial, sans-serif; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .btn-primary { background-color: #ff4b4b; color: white; transition: 0.2s; }
-        .btn-primary:hover { background-color: #e63e3e; transform: translateY(-1px); }
-        .mode-btn { transition: 0.2s; border: 1px solid #ddd; font-weight: bold; font-size: 0.75rem; }
-        .mode-btn.active { background-color: #ff4b4b; color: white; border-color: #ff4b4b; box-shadow: 0 2px 4px rgba(255,75,75,0.3); }
-        .yahoo-link { display: inline-flex; align-items: center; gap: 4px; color: #ff0033; font-weight: bold; font-size: 0.9rem; text-decoration: none; margin-top: 8px; transition: 0.2s; }
-        .yahoo-link:hover { color: #cc0000; text-decoration: underline; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フヤセルブレイン - AI理論株価分析ツール</title>
+<style>
+    body { font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { font-size: 24px; text-align: center; color: #2c3e50; margin-bottom: 30px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; color: #34495e; }
+    input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+    textarea { height: 150px; resize: vertical; }
+    .btn { display: block; width: 100%; padding: 12px; background-color: #27ae60; color: #fff; border: none; border-radius: 4px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+    .btn:hover { background-color: #219150; }
+    
+    /* リンクエリアのスタイル */
+    .link-area { margin-bottom: 15px; padding: 10px; background-color: #eaf4ff; border-radius: 4px; border-left: 5px solid #0056b3; }
+    .link-area a { text-decoration: none; font-weight: bold; color: #0056b3; display: block; }
+    .link-area p { color: #d9534f; font-size: 0.85em; margin: 5px 0 0 0; font-weight: bold; }
+</style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex items-center gap-6 mb-8">
-            <img src="huya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616430.png'">
-            <div>
-                <h1 class="text-2xl md:text-4xl font-bold text-gray-800">フヤセルプロンプト</h1>
-                <p class="text-gray-500 font-bold">〜 自動生成器 🐈 〜</p>
-            </div>
-        </div>
+<body>
 
-        <div class="card p-6 mb-6">
-            <label class="block font-bold mb-3 text-gray-700 text-lg">1. 分析モードを選択</label>
-            <div id="modeButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6"></div>
+<div class="container">
+    <h1>🧠 フヤセルブレイン<br><span style="font-size:0.6em">AI理論株価分析ツール</span></h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <button onclick="randomChar()" class="bg-gray-100 p-3 rounded-lg font-bold hover:bg-gray-200">🎲 キャラをランダムにする</button>
-                <button onclick="location.reload()" class="bg-gray-100 p-3 rounded-lg font-bold hover:bg-gray-200">🔄 全てリセット</button>
-            </div>
+    <div class="form-group">
+        <label for="stockCode">銘柄コード（4桁）</label>
+        <input type="text" id="stockCode" placeholder="例: 7203" oninput="updateLink()">
+    </div>
 
-            <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">担当キャラクター</label>
-                <select id="charSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customChar" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
-            </div>
-            
-            <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">聞きたいこと</label>
-                <select id="qSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customQ" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
-            </div>
-
-            <div id="extraOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
-                <div>
-                    <label class="block font-bold mb-1 text-gray-600 text-sm">現在の状態</label>
-                    <select id="statusSelect" class="w-full p-2 border rounded shadow-sm"></select>
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-gray-600 text-sm">時間軸</label>
-                    <select id="timeSelect" class="w-full p-2 border rounded shadow-sm"></select>
-                </div>
-            </div>
-
-            <div class="mb-6 border-t pt-4">
-                <div id="tickerArea">
-                    <label class="block font-bold mb-2 text-gray-700">証券コード / 社名（任意）</label>
-                    <div class="flex flex-col">
-                        <input type="text" id="ticker" oninput="updateYahooLink()" class="w-full p-3 border-2 rounded-lg" placeholder="例: 7203">
-                        <a id="yahooLink" href="#" target="_blank" class="yahoo-link hidden">
-                            🔍 Yahoo!ファイナンスで「<span id="tickerDisplay"></span>」の実在チェック！
-                        </a>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">※AIは架空の銘柄でも嘘をつくので、必ずチェックしてね！</p>
-                </div>
-                
-                <label id="detailLabel" class="block font-bold mb-2 mt-4 text-gray-700">ニュース・記事・心の叫び</label>
-                <textarea id="detail" class="w-full p-3 border-2 rounded-lg h-48 mb-6 focus:border-red-400 outline-none" placeholder="ここにコピペしてにゃ！"></textarea>
-            </div>
-
-            <button onclick="generate()" class="w-full btn-primary p-5 rounded-2xl text-2xl font-bold shadow-xl">🚀 プロンプトを生成する</button>
-        </div>
-
-        <div id="resultArea" class="hidden mb-20">
-            <div class="card p-6 border-t-8 border-green-500">
-                <h2 class="text-xl font-bold mb-4 text-green-700">📝 生成完了にゃ！</h2>
-                <pre id="outputText" class="bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto text-sm mb-4 whitespace-pre-wrap border-2 border-gray-700"></pre>
-                <button id="copyBtn" onclick="copy()" class="bg-white border-2 border-gray-300 p-4 rounded-xl font-bold hover:bg-gray-50 w-full md:w-auto text-lg">📋 コピーする</button>
-            </div>
+    <div class="form-group">
+        <div class="link-area">
+            <a id="yahooLink" href="https://finance.yahoo.co.jp/" target="_blank">
+                🔍 Yahoo!ファイナンスで銘柄の実在チェック！
+            </a>
+            <p>※存在しない銘柄だとAIが適当な回答をするので、確認必須！⇧クリックで確認</p>
         </div>
     </div>
 
-    <script>
-        // --- データの定義 ---
-        const MODES = {
-            "📈 攻め（売買・戦略）": {
-                chars: [
-                    "【🟩 売買】短期売買コーチ", "【🟩 売買】スイング職人", "【🟩 売買】順張り隊長", "【🟩 売買】逆張り名人", "【🟩 売買】エントリーポイント整理屋", "【🟩 売買】ブレイクアウト狙撃手", "【🟩 売買】イナゴタワー登山家", "【🟩 売買】IPOセカンダリーハンター", "【🟩 売買】低位株・ボロ株ドリーム勢", "【🟩 売買】イベント投資家",
-                    "【🟩 売買】板読みの鬼・気配値監視員", "【🟩 売買】PTS夜戦部隊・先回り隊員", "【🟩 売買】空売り勢の踏み上げ誘導係"
-                ],
-                questions: [
-                    "今入っていい？", "明日の寄り付き予想は？", "押し目はどこ？", "チャート的に上？", "損切り・利確目標は？",
-                    "5分足のRSI乖離から見てリバ狙える？", "出来高の急増は『買い集め』に見える？", "板の厚い方を食い破る勢いはある？", "直近IPOのセカンダリー、初動乗れる？"
-                ],
-                rules: `1. **結論からズバリ**: 「買い」「様子見」「売り」の判断を冒頭で述べてください。
-2. **具体的な数値**: 損切りラインや利確目標は具体的な価格（円）で示してください。
-3. **キャラを貫く**: 短期トレーダーのコーチとして、迷いを断ち切る強い口調で話してください。`
-            },
-            "🛡️ 守り（管理・リスク）": {
-                chars: [
-                    "【🟥 辛口】鬼上司投資顧問", "【🟥 辛口】撤退番長", "【🟥 辛口】ポジポジ病矯正官", "【🟩 戦略】資金管理マネージャー", "【🟩 戦略】分割利確コーチ", "【🟩 戦略】「現金は王様」信者", "【🟩 戦略】ヘッジ取引の魔術師", "【🟩 戦略】ポートフォリオ設計士", "【🟥 辛口】機会損失を嘆く亡霊", "【🟥 辛口】税金計算アドバイザー",
-                    "【🟩 戦略】追証回避の専門ボディーガード", "【🟥 辛口】週末ノーポジ徹底の風紀委員", "【🟥 辛口】メンタル崩壊ストッパー"
-                ],
-                questions: [
-                    "含み損切るべき？", "ナンピンして助かる？", "適正ポジション量は？", "リスク洗い出して",
-                    "損益通算を考えて今売るべき？", "最大ドローダウン（資産の減り）を計算して", "今の持ち株、業種が偏りすぎてない？"
-                ],
-                rules: `1. **最悪を想定**: 楽観論は捨てて、最悪のシナリオ（ストップ安など）を提示してください。
-2. **資金管理優先**: 儲けることより「生き残ること」を最優先にアドバイスしてください。
-3. **キャラを貫く**: 甘えを許さない厳しい態度、または冷静沈着なリスク管理者の口調で。`
-            },
-            "📊 分析（業績・ファンダ）": {
-                chars: [
-                    "【🟦 分析】需給探偵", "【🟦 分析】材料スナイパー", "【🟦 分析】20年選手の日本株アナリスト", "【🟦 分析】決算職人", "【🟨 長期】バリュー株査定士", "【🟦 分析】会社四季報の虫", "【🟦 分析】マクロ経済学者", "【🟦 分析】インサイダー追跡班", "【🟦 分析】セクターローテ予報士", "【🟨 長期】高配当・優待生活の達人",
-                    "【🟦 分析】中小型株の発掘職人", "【🟦 分析】米株連動・為替読みのエキスパート", "【🟦 分析】大株主・大量保有報告書の解読班"
-                ],
-                questions: [
-                    "決算評価して", "PER・PBRから見て割安？", "ライバルとの比較強みは？",
-                    "競合他社の決算から、この株に追い風吹く？", "修正履歴から見て『上方修正』の期待度は？", "キャッシュフローから見て増配余力はある？"
-                ],
-                rules: `1. **データに基づく**: 感情論ではなく、数字（PER, PBR, 進捗率など）を根拠にしてください。
-2. **多角的視点**: 良い点だけでなく、懸念点（リスク）も公平に挙げてください。
-3. **キャラを貫く**: プロのアナリストとして、論理的かつ専門的な言葉遣いで分析してください。`
-            },
-            "🔰 初心者・メンタル": {
-                chars: [
-                    "【🟪 初心】投資を噛み砕く先生", "【🟪 メンタル】感情整理カウンセラー", "【🟪 メンタル】「今日は休め」と言う人", "【🟫 遊び】逆神おじさん", "【🟪 初心】専門用語禁止の優しい先輩", "【🟪 メンタル】褒めちぎり隊長", "【🟪 初心】歴史の先生", "【🟫 遊び】フヤにゃん", "【🟪 メンタル】瞑想導入係", "【🟪 初心】積立NISAとの比較お姉さん",
-                    "【🟪 初心】損出し・節税の相談お兄さん", "【🟪 メンタル】勝ち負けより継続を説く僧侶", "【🟫 遊び】大勝ちを夢見る妄想フレンド"
-                ],
-                questions: [
-                    "初心者でも大丈夫？", "専門用語を噛み砕いて！", "メンタルボロボロ。励まして",
-                    "投資日記、今の負けをどう記録すべき？", "周りの『爆益』が羨ましくて焦る…どうすれば？", "含み損に慣れて『塩漬け』が平気になった、これ危ない？"
-                ],
-                rules: `1. **専門用語禁止**: 初心者でもわかる平易な言葉で説明してください。
-2. **共感と肯定**: ユーザーの不安や恐怖に寄り添い、まずは感情を受け止めてください。
-3. **キャラを貫く**: 優しく、温かく、時にはユーモアを交えてリラックスさせてください。`
-            },
-            "🚑 緊急・特別対応": {
-                chars: [
-                    "【🟥 辛口】冷徹ファンドPM", "【🟥 辛口】楽観論クラッシャー", "【🟨 長期】決算跨ぎ判断役", "【🟫 遊び】最後に現実を突きつける監督", "【🚑 緊急】外科医・損切りドクター", "【🚑 緊急】PTS・ADR監視員", "【🚑 緊急】開示情報の弁護士", "【🚑 緊急】流動性パニック対策係", "【🟫 遊び】お祈り投資法の教祖",
-                    "【🚑 緊急】S安張り付き脱出の助言者", "【🚑 緊急】TOB・上場廃止の手続き案内人", "【🚑 緊急】深夜のADR暴落対応デスク"
-                ],
-                questions: [
-                    "暴落中！逃げるか拾うか？", "決算またぎギャンブルしていい？", "スト安で売れない！",
-                    "PTSで急落中！ADR（米国）の反応はどう？", "信用全力で被弾！追証回避の優先順位は？", "TOB発表！市場で売るか応募するかどっち？"
-                ],
-                rules: `1. **スピード重視**: 悠長な説明は省き、今すぐやるべき行動（Action）を提示してください。
-2. **冷静な判断**: パニックになっているユーザーに対し、客観的な事実（板状況やルール）を突きつけてください。
-3. **キャラを貫く**: 緊急事態に対応するプロとして、簡潔かつ断定的に指示を出してください。`
-            },
-            "📚 学習（知識・歴史）": {
-                chars: [
-                    "【📚 学習】恩株づくりの職人", "【📚 学習】投資の歴史教授", "【📚 学習】テクニカル分析の教科書", "【📚 学習】ファンダメンタルズの鬼教師", "【📚 学習】行動経済学の研究者", "【📚 学習】伝説の相場師シミュレーター", "【📚 学習】金融用語の辞書", "【📚 学習】マクロ経済の講師", "【📚 学習】クイズ出題者", "【📚 学習】洋書投資本の翻訳家", "【📚 学習】失敗事例アーカイブ",
-                    "【📚 学習】アノマリー（季節性）の研究家", "【📚 学習】億り人の成功パターン分析官", "【📚 学習】相場の格言・名言解説者"
-                ],
-                questions: [
-                    "恩株の作り方は？", "PER/PBR/ROE教えて", "ゴールデンクロスは効く？",
-                    "過去20年の『節分天井』の確率を教えて", "大暴落が来た時、最初に買われる株の特徴は？", "行動経済学の『サンクコストバイアス』って何？"
-                ],
-                rules: `1. **教科書的に**: 定義や仕組みを正確に教えてください。
-2. **具体例**: 抽象的な話だけでなく、過去のチャートや事例（リーマンショック等）を例に出してください。
-3. **キャラを貫く**: 先生や教授として、学ぶ意欲を高めるような口調で解説してください。`
-            },
-            "📰 記事・ニュース入力": {
-                chars: [
-                    "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター", "【📰 記事】フヤにゃん",
-                    "【📰 記事】行論の裏を読む陰謀論者（？）", "【📰 記事】関連セクター波及予測マシン", "【📰 記事】SNSでの拡散度・影響力測定器"
-                ],
-                questions: [
-                    "この記事から連想される『意外な関連銘柄（大穴）』は？",
-                    "四季報で検索すべき『スクリーニング用ワード』を3つ挙げて",
-                    "この記事の『行間』に隠された、書かれていない真実は？",
-                    "この記事がもし『フェイク』や『飛ばし』だとしたら、誰が得をする？",
-                    "この記事の『漠然とした評価』と『怪しさレベル』を判定して",
-                    "明日の寄り付きで、特買い（急騰）になりそうなパワーはある？",
-                    "PTS（夜間取引）で反応しそうな『強いワード』はどれ？",
-                    "海外投資家（外国人）はこのニュースをポジティブに捉える？",
-                    "このニュースで資金が流入する『セクター（業種）』はどこ？",
-                    "「材料出尽くし」で売られるパターン？それとも「初動」？",
-                    "一見良いニュースだけど、隠れた『落とし穴（リスク）』はある？",
-                    "この記事の『ポジショントーク（買い煽り）』要素はどれくらい？",
-                    "「噂で買って事実で売る」なら、今はどのフェーズ？",
-                    "競合他社にとっては『メリット』か『デメリット』か？",
-                    "過去に似たようなニュースがあった時、株価はどうなった？",
-                    "X（旧Twitter）でバズりそうな『見出し』と『ハッシュタグ』を作って",
-                    "この記事を『強気・弱気・中立』の3段階で判定して",
-                    "この企業が儲かると、連鎖的に儲かる『下請け・関連企業』は？",
-                    "小学生投資家にもわかるように『3行』で説明して",
-                    "この記事の内容を、もっと辛口に批判（ダメ出し）して"
-                ],
-                rules: `1. **インサイト重視**: 単なる要約ではなく、そこから読み取れる「投資のヒント（連想）」を提示してください。
-2. **裏読み**: 記事の意図、ポジショントーク、書かれていないリスクを推測してください。
-3. **キャラを貫く**: 情報のプロとして、鋭い視点と客観的な分析を提供してください。`
-            }
-        };
+    <div class="form-group">
+        <label for="newsInput">ニュース・記事・関心ごと</label>
+        <textarea id="newsInput" placeholder="ここにコピペ（記事内容を貼り付け）"></textarea>
+    </div>
 
-        const TIME_HORIZONS = ["指定なし", "当日", "数週", "半年", "1年以上"];
-        const STATUS_OPTIONS = ["未保有", "含み益中", "含み損中", "監視中", "勉強中"];
+    <button class="btn" onclick="alert('分析機能はここに実装します')">分析開始</button>
+</div>
 
-        let currentMode = Object.keys(MODES)[0];
-        const modeContainer = document.getElementById('modeButtons');
-        const charSelect = document.getElementById('charSelect');
-        const qSelect = document.getElementById('qSelect');
-
-        function updateUI() {
-            const data = MODES[currentMode];
-            charSelect.innerHTML = "";
-            qSelect.innerHTML = "";
-            data.chars.forEach(c => charSelect.add(new Option(c)));
-            data.questions.forEach(q => qSelect.add(new Option(q)));
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === currentMode));
-            
-            const isArticle = currentMode.includes("記事");
-            document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
-            document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
-            
-            // モード切り替え時にYahooリンクの状態もリセット
-            updateYahooLink();
+<script>
+    // 銘柄コード入力に合わせてリンクを書き換えるスクリプト
+    function updateLink() {
+        const code = document.getElementById('stockCode').value;
+        const link = document.getElementById('yahooLink');
+        
+        if (code.length >= 4) {
+            // コードがある場合
+            link.href = `https://finance.yahoo.co.jp/quote/${code}.T`;
+            link.innerText = `🔍 Yahoo!ファイナンスで「${code}」の実在チェック！`;
+        } else {
+            // コードが短い場合
+            link.href = "https://finance.yahoo.co.jp/";
+            link.innerText = "🔍 Yahoo!ファイナンスで銘柄の実在チェック！";
         }
+    }
+</script>
 
-        // --- Yahooリンク更新機能 ---
-        function updateYahooLink() {
-            const ticker = document.getElementById('ticker').value;
-            const link = document.getElementById('yahooLink');
-            const display = document.getElementById('tickerDisplay');
-            
-            // 4桁の数字が入力された時だけリンクを表示
-            if (ticker && ticker.match(/^\d{4}$/)) {
-                link.href = `https://finance.yahoo.co.jp/quote/${ticker}.T`;
-                display.innerText = ticker;
-                link.classList.remove('hidden');
-                link.classList.add('flex');
-            } else {
-                link.classList.add('hidden');
-                link.classList.remove('flex');
-            }
-        }
-
-        Object.keys(MODES).forEach(m => {
-            const btn = document.createElement('button');
-            btn.innerText = m;
-            btn.className = "mode-btn p-2 rounded-lg bg-white shadow-sm";
-            btn.onclick = () => { currentMode = m; updateUI(); };
-            modeContainer.appendChild(btn);
-        });
-
-        STATUS_OPTIONS.forEach(s => document.getElementById('statusSelect').add(new Option(s)));
-        TIME_HORIZONS.forEach(t => document.getElementById('timeSelect').add(new Option(t)));
-
-        function randomChar() {
-            const data = MODES[currentMode];
-            charSelect.selectedIndex = Math.floor(Math.random() * data.chars.length);
-        }
-
-        function generate() {
-            const char = document.getElementById('customChar').value || charSelect.value;
-            const q = document.getElementById('customQ').value || qSelect.value;
-            const t = document.getElementById('ticker').value || "";
-            const d = document.getElementById('detail').value;
-            
-            const isArticle = currentMode.includes("記事");
-            if(!d && (!isArticle && !t)) { alert("中身を入力してにゃ！"); return; }
-
-            const modeRules = MODES[currentMode].rules || "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
-
-            let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n## ユーザー情報・相談内容\n`;
-            
-            if (!isArticle) {
-                prompt += `- **現在の状態**: ${document.getElementById('statusSelect').value}\n`;
-                prompt += `- **投資の時間軸**: ${document.getElementById('timeSelect').value}\n`;
-            }
-            
-            prompt += `- **聞きたいこと**: ${q}\n\n`;
-            
-            const targetDisplay = isArticle ? "記事・ニュース内に登場する銘柄、または記事そのもの" : (t || "（以下のテキストデータ参照）");
-            prompt += `## 対象\n${targetDisplay}\n\n`;
-            
-            prompt += `## 入力データ（ニュース・記事・メモ）\n${d}\n\n`;
-            
-            prompt += `## 回答のルール\n${modeRules}\n`;
-            prompt += `4. **形式**: 読みやすいマークダウン形式（重要な数値は**太字**）`;
-
-            document.getElementById('outputText').innerText = prompt;
-            document.getElementById('resultArea').classList.remove('hidden');
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        function copy() {
-            const text = document.getElementById('outputText').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.innerText = "✅ コピー完了！";
-                setTimeout(() => btn.innerText = "📋 コピーする", 2000);
-            });
-        }
-        updateUI();
-    </script>
 </body>
 </html>
