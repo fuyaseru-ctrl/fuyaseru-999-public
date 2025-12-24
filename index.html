@@ -17,10 +17,10 @@
 <body class="p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
         <div class="flex items-center gap-6 mb-8">
-            <img src="fuya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616430.png'">
+            <img src="huya.png" alt="huya" class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover shadow-sm" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616430.png'">
             <div>
                 <h1 class="text-2xl md:text-4xl font-bold text-gray-800">フヤセルプロンプト</h1>
-                <p class="text-gray-500 font-bold">〜 キャラ増量・爆速HTML版 🐈 〜</p>
+                <p class="text-gray-500 font-bold">〜 自動生成器 🐈 〜</p>
             </div>
         </div>
 
@@ -34,15 +34,15 @@
             </div>
 
             <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">担当キャラクター（全77名！）</label>
+                <label class="block font-bold mb-2 text-gray-700">担当キャラクター</label>
                 <select id="charSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customChar" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力（優先）">
+                <input type="text" id="customChar" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
             </div>
             
             <div class="mb-6">
-                <label class="block font-bold mb-2 text-gray-700">聞きたいこと</label>
+                <label class="block font-bold mb-2 text-gray-700">聞きたいこと（＋20項目追加済み！）</label>
                 <select id="qSelect" class="w-full p-3 border-2 rounded-lg mb-2 focus:border-red-400 outline-none"></select>
-                <input type="text" id="customQ" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力（優先）">
+                <input type="text" id="customQ" class="w-full p-2 border rounded-lg text-sm bg-gray-50" placeholder="リストにない場合は自分で入力">
             </div>
 
             <div id="extraOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
@@ -70,9 +70,9 @@
 
         <div id="resultArea" class="hidden mb-20">
             <div class="card p-6 border-t-8 border-green-500">
-                <h2 class="text-xl font-bold mb-4 text-green-700 flex items-center gap-2">📝 生成完了にゃ！</h2>
-                <pre id="outputText" class="bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto text-sm mb-4 whitespace-pre-wrap leading-relaxed border-2 border-gray-700"></pre>
-                <button id="copyBtn" onclick="copy()" class="bg-white border-2 border-gray-300 p-4 rounded-xl font-bold hover:bg-gray-50 w-full md:w-auto text-lg shadow-sm">📋 コピーする</button>
+                <h2 class="text-xl font-bold mb-4 text-green-700">📝 生成完了にゃ！</h2>
+                <pre id="outputText" class="bg-gray-900 text-green-400 p-6 rounded-xl overflow-x-auto text-sm mb-4 whitespace-pre-wrap border-2 border-gray-700"></pre>
+                <button id="copyBtn" onclick="copy()" class="bg-white border-2 border-gray-300 p-4 rounded-xl font-bold hover:bg-gray-50 w-full md:w-auto text-lg">📋 コピーする</button>
             </div>
         </div>
     </div>
@@ -80,57 +80,57 @@
     <script>
         const MODES = {
             "📈 攻め（売買・戦略）": {
-                chars: [
-                    "【🟩 売買】短期売買コーチ", "【🟩 売買】スイング職人", "【🟩 売買】順張り隊長", "【🟩 売買】逆張り名人", "【🟩 売買】エントリーポイント整理屋", "【🟩 売買】ブレイクアウト狙撃手", "【🟩 売買】イナゴタワー登山家", "【🟩 売買】IPOセカンダリーハンター", "【🟩 売買】低位株・ボロ株ドリーム勢", "【🟩 売買】イベント投資家",
-                    "【🆕 攻め】板読みの鬼・気配値監視員", "【🆕 攻め】PTS夜戦部隊・先回り隊員", "【🆕 攻め】空売り勢の踏み上げ誘導係"
-                ],
-                questions: ["今入っていい？", "明日の寄り付きは？", "押し目はどこ？", "チャート的に上に行きそう？", "損切り・利確目標は？"]
+                chars: ["【🟩 売買】短期売買コーチ", "【🟩 売買】スイング職人", "【🟩 売買】順張り隊長", "【🟩 売買】逆張り名人", "【🟩 売買】エントリーポイント整理屋", "【🆕 攻め】板読みの鬼", "【🆕 攻め】PTS夜戦部隊", "【🆕 攻め】空売り誘導係"],
+                questions: [
+                    "今入っていい？", "明日の寄り付き予想は？", "押し目はどこ？", "チャート的に上？", "損切り・利確目標は？",
+                    "🆕 5分足のRSI乖離から見てリバ狙える？", "🆕 出来高の急増は『買い集め』に見える？", "🆕 板の厚い方を食い破る勢いはある？", "🆕 直近IPOのセカンダリー、初動乗れる？"
+                ]
             },
             "🛡️ 守り（管理・リスク）": {
-                chars: [
-                    "【🟥 辛口】鬼上司投資顧問", "【🟥 辛口】撤退番長", "【🟥 辛口】ポジポジ病矯正官", "【🟩 戦略】資金管理マネージャー", "【🟩 戦略】分割利確コーチ", "【🟩 戦略】「現金は王様」信者", "【🟩 戦略】ヘッジ取引の魔術師", "【🟩 戦略】ポートフォリオ設計士", "【🟥 辛口】機会損失を嘆く亡霊", "【🟥 辛口】税金計算アドバイザー",
-                    "【🆕 守り】追証回避の専門ボディーガード", "【🆕 守り】週末ノーポジ徹底の風紀委員", "【🆕 守り】メンタル崩壊ストッパー"
-                ],
-                questions: ["含み損が辛い。切るべき？", "ナンピンで助かる？", "適正なポジション量は？", "リスクを洗い出して"]
+                chars: ["【🟥 辛口】鬼上司投資顧問", "【🟥 辛口】撤退番長", "【🟩 戦略】資金管理マネージャー", "【🆕 守り】追証回避ボディーガード", "【🆕 守り】風紀委員"],
+                questions: [
+                    "含み損切るべき？", "ナンピンして助かる？", "適正ポジション量は？", "リスク洗い出して",
+                    "🆕 損益通算を考えて今売るべき？", "🆕 最大ドローダウン（資産の減り）を計算して", "🆕 今の持ち株、業種が偏りすぎてない？"
+                ]
             },
             "📊 分析（業績・ファンダ）": {
-                chars: [
-                    "【🟦 分析】需給探偵", "【🟦 分析】材料スナイパー", "【🟦 分析】20年選手の日本株アナリスト", "【🟦 分析】決算職人", "【🟨 長期】バリュー株査定士", "【🟦 分析】会社四季報の虫", "【🟦 分析】マクロ経済学者", "【🟦 分析】インサイダー追跡班", "【🟦 分析】セクターローテ予報士", "【🟨 長期】高配当・優待生活の達人",
-                    "【🆕 分析】中小型株の発掘職人", "【🆕 分析】米株連動・為替読みのエキスパート", "【🆕 分析】大株主・大量保有報告書の解読班"
-                ],
-                questions: ["決算評価して", "PER・PBRから見て割安？", "ライバル企業との比較強みは？"]
+                chars: ["【🟦 分析】需給探偵", "【🟦 分析】決算職人", "【🟨 長期】バリュー株査定士", "【🆕 分析】中小型発掘職人", "【🆕 分析】米株連動エキスパート"],
+                questions: [
+                    "決算評価して", "PER・PBRから見て割安？", "ライバルとの比較強みは？",
+                    "🆕 競合他社の決算から、この株に追い風吹く？", "🆕 修正履歴から見て『上方修正』の期待度は？", "🆕 キャッシュフローから見て増配余力はある？"
+                ]
             },
             "🔰 初心者・メンタル": {
-                chars: [
-                    "【🟪 初心】投資を噛み砕く先生", "【🟪 メンタル】感情整理カウンセラー", "【🟪 メンタル】「今日は休め」と言う人", "【🟫 遊び】逆神おじさん", "【🟪 初心】専門用語禁止の優しい先輩", "【🟪 メンタル】褒めちぎり隊長", "【🟪 初心】歴史の先生", "【🟫 遊び】フヤにゃん", "【🟪 メンタル】瞑想導入係", "【🟪 初心】積立NISAとの比較お姉さん",
-                    "【🆕 初心】損出し・節税の相談お兄さん", "【🆕 メンタル】勝ち負けより継続を説く僧侶", "【🆕 遊び】大勝ちを夢見る妄想フレンド"
-                ],
-                questions: ["初心者でも大丈夫？", "専門用語を噛み砕いて！", "メンタルボロボロ。励まして"]
+                chars: ["【🟪 初心】噛み砕く先生", "【🟪 メンタル】カウンセラー", "【🟫 遊び】フヤにゃん", "【🆕 メンタル】継続を説く僧侶"],
+                questions: [
+                    "初心者でも大丈夫？", "専門用語を噛み砕いて", "メンタルボロボロ。励まして",
+                    "🆕 投資日記、今の負けをどう記録すべき？", "🆕 周りの『爆益』が羨ましくて焦る…どうすれば？", "🆕 含み損に慣れて『塩漬け』が平気になった、これ危ない？"
+                ]
             },
             "🚑 緊急・特別対応": {
-                chars: [
-                    "【🟥 辛口】冷徹ファンドPM", "【🟥 辛口】楽観論クラッシャー", "【🟨 長期】決算跨ぎ判断役", "【🟫 遊び】最後に現実を突きつける監督", "【🚑 緊急】外科医・損切りドクター", "【🚑 緊急】PTS・ADR監視員", "【🚑 緊急】開示情報の弁護士", "【🚑 緊急】流動性パニック対策係", "【🟫 遊び】お祈り投資法の教祖",
-                    "【🆕 緊急】S安張り付き脱出の助言者", "【🆕 緊急】TOB・上場廃止の手続き案内人", "【🆕 緊急】深夜のADR暴落対応デスク"
-                ],
-                questions: ["暴落中！逃げるか拾うか？", "決算またぎギャンブルしていい？", "スト安で売れない！"]
+                chars: ["【🚑 緊急】損切りドクター", "【🚑 緊急】PTS・ADR監視員", "【🆕 緊急】S安脱出の助言者"],
+                questions: [
+                    "暴落中！逃げるか拾うか？", "決算またぎギャンブルしていい？", "スト安で売れない！",
+                    "🆕 PTSで急落中！ADR（米国）の反応はどう？", "🆕 信用全力で被弾！追証回避の優先順位は？", "🆕 TOB発表！市場で売るか応募するかどっち？"
+                ]
             },
             "📚 学習（知識・歴史）": {
-                chars: [
-                    "【📚 学習】恩株づくりの職人", "【📚 学習】投資の歴史教授", "【📚 学習】テクニカル分析の教科書", "【📚 学習】ファンダメンタルズの鬼教師", "【📚 学習】行動経済学の研究者", "【📚 学習】伝説の相場師シミュレーター", "【📚 学習】金融用語の辞書", "【📚 学習】マクロ経済の講師", "【📚 学習】クイズ出題者", "【📚 学習】洋書投資本の翻訳家", "【📚 学習】失敗事例アーカイブ",
-                    "【🆕 学習】アノマリー（季節性）の研究家", "【🆕 学習】億り人の成功パターン分析官", "【🆕 学習】相場の格言・名言解説者"
-                ],
-                questions: ["恩株の作り方は？", "PER/PBR/ROEを教えて", "ゴールデンクロスは効くの？"]
+                chars: ["【📚 学習】歴史教授", "【📚 学習】恩株職人", "【🆕 学習】アノマリー研究家"],
+                questions: [
+                    "恩株の作り方は？", "PER/PBR/ROE教えて", "ゴールデンクロスは効く？",
+                    "🆕 過去20年の『節分天井』の確率を教えて", "🆕 大暴落が来た時、最初に買われる株の特徴は？", "🆕 行動経済学の『サンクコストバイアス』って何？"
+                ]
             },
             "📰 記事・ニュース入力": {
-                chars: [
-                    "【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【📰 記事】ポジティブ変換機", "【📰 記事】銘柄抽出マシーン", "【📰 記事】小学生にもわかる解説", "【📰 記事】見出し職人", "【📰 記事】フェイクニュース検知器", "【📰 記事】海外記事の翻訳・解説", "【📰 記事】議論のファシリテーター", "【📰 記事】フヤにゃん",
-                    "【🆕 記事】行論の裏を読む陰謀論者（？）", "【🆕 記事】関連セクター波及予測マシン", "【🆕 記事】SNSでの拡散度・影響力測定器"
-                ],
-                questions: ["3行で要約して", "小学生でもわかるようにして", "関連銘柄は買いか売りか？"]
+                chars: ["【📰 記事】要約のプロ", "【📰 記事】辛口コメンテーター", "【🆕 記事】陰謀論者（？）"],
+                questions: [
+                    "3行で要約して", "小学生でもわかるように", "買いか売りか？",
+                    "🆕 記事の『行間』に隠された不安要素は？", "🆕 他のニュースサイトと意見が食い違ってるのはなぜ？", "🆕 このニュースがTwitter（X）でどう騒がれそう？"
+                ]
             }
         };
 
-        const TIME_HORIZONS = ["指定なし", "超短期（当日）", "短期（数週）", "中期（半年）", "長期（1年以上）"];
+        const TIME_HORIZONS = ["指定なし", "当日", "数週", "半年", "1年以上"];
         const STATUS_OPTIONS = ["未保有", "含み益中", "含み損中", "監視中", "勉強中"];
 
         let currentMode = Object.keys(MODES)[0];
@@ -158,7 +158,6 @@
             modeContainer.appendChild(btn);
         });
 
-        // セレクトボックス初期化
         STATUS_OPTIONS.forEach(s => document.getElementById('statusSelect').add(new Option(s)));
         TIME_HORIZONS.forEach(t => document.getElementById('timeSelect').add(new Option(t)));
 
