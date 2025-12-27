@@ -103,7 +103,7 @@
                         💡 分からない場合は参考例としてこちらをクリック(タップ)
                     </span>
                     <select id="qSelect" onchange="replaceWithQuestion()" class="hidden-select w-full p-3 border-2 rounded-lg bg-gray-50 outline-none mt-2">
-                        <option value="" disabled selected>▼ リストから選択して入力欄を書き換え（Undo可能）</option>
+                        <option value="" disabled selected>▼ 質問リストから選ぶ（入力欄に反映されます）</option>
                     </select>
                 </div>
             </div>
@@ -276,7 +276,7 @@
             
             // リストをリセットして再構築
             charSelect.innerHTML = "";
-            qSelect.innerHTML = '<option value="" disabled selected>▼ リストから選択して入力欄を書き換え（Undo可能）</option>';
+            qSelect.innerHTML = '<option value="" disabled selected>▼ 質問リストから選ぶ（入力欄に反映されます）</option>';
             
             // キャラリスト生成
             data.chars.forEach(c => charSelect.add(new Option(c, c)));
