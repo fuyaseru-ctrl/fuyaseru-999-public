@@ -44,7 +44,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #1a202c; /* ダークグレー */
             z-index: 9999;
-            display: flex;
+            display: flex; /* 初期状態はJSで制御するためflexのまま */
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -167,9 +167,20 @@
     <script>
         // ----------------------------------------------------
         // ★ パスワード設定エリア ★
-        // ここを変更するとパスワードが変わります（今は 7777）
         // ----------------------------------------------------
         const PASSWORD = "7777";
+
+        // ★ログイン状態の確認（ページ読み込み時）
+        // ブラウザが開いている間（セッション中）は記憶する
+        window.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('loginOverlay');
+            // すでにログイン済みかチェック
+            if (sessionStorage.getItem('fuyaseru_auth') === 'true') {
+                overlay.style.display = 'none'; // 認証済みなら隠す
+            } else {
+                overlay.style.display = 'flex'; // 未認証なら表示
+            }
+        });
 
         // パスワードチェック関数
         function checkPass() {
@@ -178,10 +189,10 @@
             const overlay = document.getElementById('loginOverlay');
 
             if (input === PASSWORD) {
-                // 正解ならオーバーレイを消す
+                // 正解なら記憶して隠す
+                sessionStorage.setItem('fuyaseru_auth', 'true');
                 overlay.style.display = 'none';
             } else {
-                // 不正解ならエラーを表示
                 errorMsg.classList.remove('hidden');
             }
         }
