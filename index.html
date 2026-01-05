@@ -365,7 +365,7 @@
         const modeContainer = document.getElementById('modeButtons');
         const charSelect = document.getElementById('charSelect');
         const qSelect = document.getElementById('qSelect');
-        const modeHelp = document.getElementById('modeHelp'); // 追加
+        const modeHelp = document.getElementById('modeHelp');
 
         // UI初期化・更新
         function updateUI() {
@@ -384,9 +384,9 @@
             // モードボタンの見た目更新
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === currentMode));
             
-            // ★引継ぎモードなら説明を表示
+            // ★文言修正しました！
             if (currentMode.includes("引継ぎ")) {
-                modeHelp.innerText = "💡 会話が長くなり、AIの動作が重くなった時に使います。\nこれまでの会話内容や設定をまとめて、新しいチャットにスムーズに移動するための「引継ぎコード」を発行します。";
+                modeHelp.innerText = "💡 会話が長くなり、AIの動作が重くなった時に使います。\nこれまでの会話していたチャットが重いなと感じたら、そのチャットで「引継ぎ」のプロンプトをお送りください。\n会話内容や設定をまとめて、新しいチャットにスムーズに移動するための「引継ぎコード」を発行します。";
                 modeHelp.classList.add('active');
             } else {
                 modeHelp.classList.remove('active');
