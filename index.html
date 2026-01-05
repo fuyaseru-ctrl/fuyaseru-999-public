@@ -44,7 +44,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #1a202c; /* ダークグレー */
             z-index: 9999;
-            display: flex; /* 初期状態はJSで制御するためflexのまま */
+            display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -58,6 +58,20 @@
             width: 400px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
+
+        /* モード説明テキストのスタイル */
+        #modeHelp {
+            background-color: #fff7ed; /* 薄いオレンジ */
+            border-left: 4px solid #f97316; /* オレンジの線 */
+            color: #c2410c;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            display: none; /* デフォルトは非表示 */
+        }
+        #modeHelp.active { display: block; animation: fadeIn 0.3s; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -85,7 +99,9 @@
 
         <div class="card p-6 mb-6">
             <label class="block font-bold mb-3 text-gray-700 text-lg">分析モードを選択</label>
-            <div id="modeButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6"></div>
+            <div id="modeButtons" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4"></div>
+            
+            <div id="modeHelp"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <button onclick="randomChar()" class="bg-gray-100 p-3 rounded-lg font-bold hover:bg-gray-200">🎲 キャラをランダムにする</button>
@@ -170,15 +186,13 @@
         // ----------------------------------------------------
         const PASSWORD = "7777";
 
-        // ★ログイン状態の確認（ページ読み込み時）
-        // ブラウザが開いている間（セッション中）は記憶する
+        // ★ログイン状態の確認
         window.addEventListener('DOMContentLoaded', () => {
             const overlay = document.getElementById('loginOverlay');
-            // すでにログイン済みかチェック
             if (sessionStorage.getItem('fuyaseru_auth') === 'true') {
-                overlay.style.display = 'none'; // 認証済みなら隠す
+                overlay.style.display = 'none'; 
             } else {
-                overlay.style.display = 'flex'; // 未認証なら表示
+                overlay.style.display = 'flex'; 
             }
         });
 
@@ -189,7 +203,6 @@
             const overlay = document.getElementById('loginOverlay');
 
             if (input === PASSWORD) {
-                // 正解なら記憶して隠す
                 sessionStorage.setItem('fuyaseru_auth', 'true');
                 overlay.style.display = 'none';
             } else {
@@ -311,6 +324,21 @@
                 rules: `1. **インサイト重視**: 単なる要約ではなく、そこから読み取れる「投資のヒント（連想）」を提示してください。
 2. **裏読み**: 記事の意図、ポジショントーク、書かれていないリスクを推測してください。
 3. **キャラを貫く**: 情報のプロとして、鋭い視点と客観的な分析を提供してください。`
+            },
+            "📦 引継ぎ（重さ解消）": {
+                chars: [
+                    "【📦 引継ぎ】今のAI担当者（そのまま）",
+                    "【📦 引継ぎ】記憶の管理人",
+                    "【📦 引継ぎ】事務的な移行担当"
+                ],
+                questions: [
+                    "引継ぎパックを作って（プロンプト発行）",
+                    "現状のポジション・見解をまとめて",
+                    "次のチャットへの移行準備をして"
+                ],
+                rules: `1. **要約の徹底**: これまでの会話の経緯、キャラ設定（口調）、ユーザーの投資状況（保有株・含み損益など）を漏らさずまとめてください。
+2. **形式の指定**: 新しいチャットウィンドウにそのまま貼り付ければ、すぐに続きが始められる形式（コピペ用コードブロックなど）で出力してください。
+3. **継続性**: 「あなたは〇〇というキャラです」という定義も含めることで、人格がリセットされないようにしてください。`
             }
         };
 
@@ -337,6 +365,7 @@
         const modeContainer = document.getElementById('modeButtons');
         const charSelect = document.getElementById('charSelect');
         const qSelect = document.getElementById('qSelect');
+        const modeHelp = document.getElementById('modeHelp'); // 追加
 
         // UI初期化・更新
         function updateUI() {
@@ -355,10 +384,24 @@
             // モードボタンの見た目更新
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === currentMode));
             
-            // 記事モードかどうかで表示切り替え
-            const isArticle = currentMode.includes("記事");
-            document.getElementById('extraOptions').style.display = isArticle ? "none" : "grid";
-            document.getElementById('tickerArea').style.display = isArticle ? "none" : "block";
+            // ★引継ぎモードなら説明を表示
+            if (currentMode.includes("引継ぎ")) {
+                modeHelp.innerText = "💡 会話が長くなり、AIの動作が重くなった時に使います。\nこれまでの会話内容や設定をまとめて、新しいチャットにスムーズに移動するための「引継ぎコード」を発行します。";
+                modeHelp.classList.add('active');
+            } else {
+                modeHelp.classList.remove('active');
+            }
+
+            // 記事モードと引継ぎモードかどうかで表示切り替え
+            const isArticleOrHandover = currentMode.includes("記事") || currentMode.includes("引継ぎ");
+            
+            if (isArticleOrHandover) {
+                document.getElementById('extraOptions').style.display = "none";
+                document.getElementById('tickerArea').style.display = "none";
+            } else {
+                document.getElementById('extraOptions').style.display = "grid";
+                document.getElementById('tickerArea').style.display = "block";
+            }
             
             // モード切替時に入力欄をクリアする
             document.getElementById('detail').value = "";
@@ -449,23 +492,36 @@
             const t = document.getElementById('ticker').value || "";
             const d = document.getElementById('detail').value;
             
-            const isArticle = currentMode.includes("記事");
+            // 記事モードまたは引継ぎモードかチェック
+            const isArticleOrHandover = currentMode.includes("記事") || currentMode.includes("引継ぎ");
             
             if(!char) { alert("担当キャラクターを選択してください。"); return; }
-            if(!d && (!isArticle && !t)) { alert("中身（銘柄コードかニュース・相談）を入力してください。"); return; }
+            if(!d && (!isArticleOrHandover && !t)) { alert("中身（銘柄コードかニュース・相談）を入力してください。"); return; }
 
             const modeRules = MODES[currentMode].rules || "1. 結論から書く\n2. 根拠を示す\n3. キャラを貫く";
 
-            let prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n`;
+            let prompt = "";
+            if (currentMode.includes("引継ぎ")) {
+                prompt = `# AIへの指令（チャット移行準備）\n`;
+                prompt += `あなたは**「${char}」**として振る舞っています。\n`;
+                prompt += `このチャットセッションのコンテキストが長くなりすぎたため、新しいチャットウィンドウへ移行します。\n`;
+                prompt += `以下の指示に従って、**「引継ぎパック」**を作成してください。\n\n`;
+            } else {
+                prompt = `# あなたへの指令\nあなたは**「${char}」**です。\nその性格、専門性、口調を完璧に再現し、以下のユーザーの相談に乗ってください。\n\n`;
+            }
             
-            if (!isArticle) {
+            if (!isArticleOrHandover) {
                 prompt += `## ユーザー情報\n`;
                 prompt += `- **現在の状態**: ${document.getElementById('statusSelect').value}\n`;
                 prompt += `- **投資の時間軸**: ${document.getElementById('timeSelect').value}\n\n`;
             }
             
-            const targetDisplay = isArticle ? "記事・ニュース内に登場する銘柄、または記事そのもの" : (t || "（以下のテキストデータ参照）");
-            prompt += `## 対象銘柄\n${targetDisplay}\n\n`;
+            if (!isArticleOrHandover) {
+                const targetDisplay = t || "（以下のテキストデータ参照）";
+                prompt += `## 対象銘柄\n${targetDisplay}\n\n`;
+            } else if (currentMode.includes("記事")) {
+                prompt += `## 対象記事・ニュース\n記事・ニュース内に登場する銘柄、または記事そのもの\n\n`;
+            }
             
             prompt += `## 相談内容・入力データ\n${d}\n\n`;
             
